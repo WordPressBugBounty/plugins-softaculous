@@ -2,9 +2,9 @@
 Contributors: softaculous, pagelayer
 Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpress, 
 Requires at least: 4.4
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.3
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,11 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.2.2 =
+* Compatible with WordPress 6.8
+* [Pro] Added an option to refresh AI tokens usage.
+* [Pro] There was an issue with Use this feature of Softaculous AI which did not work with any third-party block, this has been fixed.
 
 = 2.2.1 =
 * [Pro] Added Replace Media feature

@@ -4,7 +4,7 @@ Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpres
 Requires at least: 4.4
 Tested up to: 6.7
 Requires PHP: 5.3
-Stable tag: 2.1.4
+Stable tag: 2.2.1
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,31 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.2.1 =
+* [Pro] Added Replace Media feature
+* [Pro] Added 14 new language packs
+* [Pro] Improved Spanish language translation
+
+= 2.2.0 =
+* [Pro] Do not Show Expiry date if License is issued via Softaculous
+* [Pro] Improved Buy AI Tokens process
+
+= 2.1.9 =
+* [Pro] The AI Promo Notice will be shown only in the Assistant Dashboard.
+
+= 2.1.8 =
+* [Pro] Fixed a typo
+
+= 2.1.7 =
+* [Pro] There was an issue loading AI in WordPress version 6.5 or lower that has been fixed.
+
+= 2.1.6 =
+* [Pro] Softaculous AI to help you write better content, currently supports Gutenberg editor.
+* [Pro] Edit images with Photopea, you can now edit any image uploaded to your site using PhotoPea.
+
+= 2.1.5 = 
+* Compatible fixes with some themes
 
 = 2.1.4 = 
 * Compatible with WordPress 6.7.x

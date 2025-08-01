@@ -4,7 +4,7 @@ Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpres
 Requires at least: 4.4
 Tested up to: 6.8
 Requires PHP: 5.3
-Stable tag: 2.2.2
+Stable tag: 2.2.4
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,14 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.2.4 =
+* [Pro] Launched AI Website Builder in SoftWP Pro.
+* [Task] Tested with WordPress 6.8.1.
+
+= 2.2.3 =
+* [Pro] AI token reload fix.
+* [Pro] Minor UI alignment fixes.
 
 = 2.2.2 =
 * Compatible with WordPress 6.8

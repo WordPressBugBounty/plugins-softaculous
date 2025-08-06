@@ -4,7 +4,7 @@ Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpres
 Requires at least: 4.4
 Tested up to: 6.8
 Requires PHP: 5.3
-Stable tag: 2.2.4
+Stable tag: 2.2.7
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,15 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.2.7 =
+* [Bug Fix] Updated Softaculous Cloud server IP
+
+= 2.2.6 =
+* [Pro] AI Onboarding is now in public beta.
+
+= 2.2.5 =
+* [Pro] AI Onboarding is being improved and will be pushed soon at a future date.
 
 = 2.2.4 =
 * [Pro] Launched AI Website Builder in SoftWP Pro.

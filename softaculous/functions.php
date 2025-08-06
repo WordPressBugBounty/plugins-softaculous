@@ -2826,6 +2826,20 @@ function softaculous_update_check(){
 	if($current_version == SOFTACULOUS_VERSION){
 		return true;
 	}
+	
+	if(version_compare($current_version, '2.2.7', '<')){
+		
+		$softaculous_allowed_ips = get_option('softaculous_allowed_ips');
+		
+		// Softaculous Cloud IP needs to be updated in allowed list
+		foreach($softaculous_allowed_ips as $sk => $soft_ip){
+			if(trim($soft_ip) == '138.201.40.162'){
+				$softaculous_allowed_ips[$sk] = SOFTACULOUS_PANEL_IP;
+				update_option('softaculous_allowed_ips', $softaculous_allowed_ips);
+				break;
+			}
+		}
+	}
 
 	// Save the new Version
 	update_option('softaculous_version', SOFTACULOUS_VERSION);

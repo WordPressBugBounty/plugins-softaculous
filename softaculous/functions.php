@@ -2280,10 +2280,62 @@ function softaculous_authorize(){
 	
 	// We allow requests from allowed panels only
 	if(!in_array($remote_ip, $allowed_ips)){
-		$return['error'] = 'Unauthorized Access from an unknown IP '.esc_html($remote_ip).'. Allowed IPs - '.esc_html(implode(',', $allowed_ips)).'!!';
-		echo wp_json_encode($return);
-		die();
+		// The static allowed IPs did not match. As a fallback resolve the IP for
+		// the Softaculous panel hostname (cached for 1 hour) and accept the
+		// request if it matches. This avoids the user having to manually update
+		// their plugin whenever cloud.softaculous.com's IP changes.
+		$panel_host_ips = softaculous_get_panel_host_ips();
+		
+		if(!empty($panel_host_ips) && !in_array($remote_ip, $panel_host_ips)){
+			$return['error'] = 'Unauthorized Access from an unknown IP '.esc_html($remote_ip).'. Allowed IPs - '.esc_html(implode(',', $allowed_ips)).'!!';
+			echo wp_json_encode($return);
+			die();
+		}
 	}
+}
+
+/**
+ * Resolve and cache the IP address of the Softaculous panel hostname.
+ *
+ * The DNS lookup is cached in the WordPress options table for 1 hour so that
+ * the plugin does not need to perform a DNS query on every request. The cache
+ * is only refreshed when it is older than 1 hour or when no cache exists yet.
+ *
+ * @since	2.3.9
+ * @return	array	List of resolved IPs for the panel hostname (empty array on failure).
+ */
+function softaculous_get_panel_host_ips(){
+	
+	$cached_ips = get_option('softaculous_panel_host_ips');
+	$cached_time = get_option('softaculous_panel_host_ips_time');
+	
+	// Use the fresh cache if available (less than 1 hour old)
+	if(!empty($cached_ips) && !empty($cached_time) && ((time() - (int) $cached_time) < 3600)){
+		return is_array($cached_ips) ? array_values($cached_ips) : array($cached_ips);
+	}
+	
+	// Resolve the IP for the panel hostname
+	$resolved_ip = '';
+	if(function_exists('gethostbyname')){
+		$resolved_ip = gethostbyname(SOFTACULOUS_PANEL);
+	}
+	
+	// gethostbyname() returns the hostname itself on failure
+	if(empty($resolved_ip) || $resolved_ip === SOFTACULOUS_PANEL){
+		// Fall back to the stale cache (if any) if resolution failed
+		if(!empty($cached_ips)){
+			return is_array($cached_ips) ? array_values($cached_ips) : array($cached_ips);
+		}
+		return array();
+	}
+	
+	$ips = array($resolved_ip);
+	
+	update_option('softaculous_panel_host_ips', $ips, false);
+	update_option('softaculous_panel_host_ips_time', time(), false);
+	
+	return $ips;
+	
 }
 
 // Gets the list of allowed IPs
@@ -2829,11 +2881,25 @@ function softaculous_update_check(){
 	
 	if(version_compare($current_version, '2.2.7', '<')){
 		
-		$softaculous_allowed_ips = get_option('softaculous_allowed_ips');
+		$softaculous_allowed_ips = get_option('softaculous_allowed_ips', array());
 		
 		// Softaculous Cloud IP needs to be updated in allowed list
 		foreach($softaculous_allowed_ips as $sk => $soft_ip){
 			if(trim($soft_ip) == '138.201.40.162'){
+				$softaculous_allowed_ips[$sk] = SOFTACULOUS_PANEL_IP;
+				update_option('softaculous_allowed_ips', $softaculous_allowed_ips);
+				break;
+			}
+		}
+	}
+	
+	if(version_compare($current_version, '2.3.9', '<')){
+		
+		$softaculous_allowed_ips = get_option('softaculous_allowed_ips', array());
+		
+		// Softaculous Cloud IP needs to be updated in allowed list
+		foreach($softaculous_allowed_ips as $sk => $soft_ip){
+			if(trim($soft_ip) == '15.204.134.15'){
 				$softaculous_allowed_ips[$sk] = SOFTACULOUS_PANEL_IP;
 				update_option('softaculous_allowed_ips', $softaculous_allowed_ips);
 				break;

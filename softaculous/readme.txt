@@ -2,9 +2,9 @@
 Contributors: softaculous, pagelayer
 Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpress, 
 Requires at least: 4.4
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 5.3
-Stable tag: 2.2.7
+Stable tag: 2.3.9
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,47 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.3.9 =
+* [Task] Improvements to Authorized IP detection of Softaculous Cloud server
+
+= 2.3.8 =
+* [Feature Pro] AI Coding agent added.
+
+= 2.3.7 =
+* [Pro] Refactored a AI feature.
+
+= 2.3.6 =
+* [Pro] Added option to install the FormLayer plugin.
+
+= 2.3.5 =
+* [Pro] Added option to install the SocialFeeds plugin.
+* [Bug Fix] Fixed a notice occurring in PHP 8.3+.
+* [Bug Fix] Fixed a fatal error in the onboarding process.
+
+= 2.3.4 =
+* [Pro] Assistant menu shifted to the top
+
+= 2.3.3 =
+* [Task] Compatible with WordPress v6.9
+
+= 2.3.2 =
+* [Pro] Licensing API Mirror code updated.
+
+= 2.3.1 =
+* [Pro] AI Onboarding is now stable.
+
+= 2.3.0 =
+* [Bug Fix] Improved some error handling
+
+= 2.2.9 =
+* [Bug Fix] Some internal server errors have been fixed.
+
+= 2.2.8 =
+* [Pro] New AI Website Builder which is 2x faster
+
+= 2.2.8 =
+* [Pro] New AI Website Builder which is 2x faster
 
 = 2.2.7 =
 * [Bug Fix] Updated Softaculous Cloud server IP

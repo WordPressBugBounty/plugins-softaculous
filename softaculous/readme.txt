@@ -4,7 +4,7 @@ Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpres
 Requires at least: 4.4
 Tested up to: 7.0
 Requires PHP: 5.3
-Stable tag: 2.3.9
+Stable tag: 2.4.0
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,9 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.4.0 =
+* [Task] Changes to take the CF_CONNECTING_IP for sites using Cloudflare Proxy
 
 = 2.3.9 =
 * [Task] Improvements to Authorized IP detection of Softaculous Cloud server

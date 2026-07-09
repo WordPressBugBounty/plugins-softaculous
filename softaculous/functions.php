@@ -2089,7 +2089,7 @@ function softaculous_load_plugin(){
 		add_action('wp_ajax_my_wpc_fetch_authkey', 'softaculous_fetch_authkey');
 	
 		// Show Softaculous ratings notice
-		softaculous_maybe_promo([
+		softaculous_maybe_promo(array(
 			'after' => 1,// In days
 			'interval' => 120,// In days
 			'rating' => 'https://wordpress.org/plugins/softaculous/#reviews',
@@ -2098,7 +2098,7 @@ function softaculous_load_plugin(){
 			'website' => 'https://softaculous.com',
 			'image' => SOFTACULOUS_PLUGIN_URL . 'assets/images/logo.gif',
 			'support' => 'https://softaculous.deskuss.com'
-		]);
+		));
 		
 	}
 	
@@ -2116,9 +2116,9 @@ function softaculous_admin_menu() {
 
 function softaculous_enqueue_scripts(){
 	
-	wp_enqueue_style('soft-style', SOFTACULOUS_PLUGIN_URL . '/assets/css/admin.css', [], SOFTACULOUS_VERSION);
+	wp_enqueue_style('soft-style', SOFTACULOUS_PLUGIN_URL . '/assets/css/admin.css', array(), SOFTACULOUS_VERSION);
 	
-	wp_enqueue_script('soft-script', SOFTACULOUS_PLUGIN_URL . '/assets/js/admin.js', [], SOFTACULOUS_VERSION, true);
+	wp_enqueue_script('soft-script', SOFTACULOUS_PLUGIN_URL . '/assets/js/admin.js', array(), SOFTACULOUS_VERSION, true);
 	
 	wp_localize_script('soft-script', 'soft_obj', array(
 		'admin_url' => admin_url(),
@@ -2241,13 +2241,166 @@ function softaculous_deactivate(){
 
 // Get the client IP
 function softaculous_getip(){
+	
 	if(isset($_SERVER["REMOTE_ADDR"])){
-		return sanitize_text_field($_SERVER["REMOTE_ADDR"]);
+		$ip_addr = sanitize_text_field($_SERVER["REMOTE_ADDR"]);
 	}elseif(isset($_SERVER["HTTP_X_FORWARDED_FOR"])){
-		return sanitize_text_field($_SERVER["HTTP_X_FORWARDED_FOR"]);
+		$ip_addr = sanitize_text_field($_SERVER["HTTP_X_FORWARDED_FOR"]);
 	}elseif(isset($_SERVER["HTTP_CLIENT_IP"])){
-		return sanitize_text_field($_SERVER["HTTP_CLIENT_IP"]);
+		$ip_addr = sanitize_text_field($_SERVER["HTTP_CLIENT_IP"]);
 	}
+
+    // Fast path: no CF header present — skip CF check entirely.
+    if(empty($_SERVER['HTTP_CF_CONNECTING_IP'])){
+        return $ip_addr;
+    }
+
+    // Validate that REMOTE_ADDR (the actual TCP peer) is a Cloudflare IP.
+    // If it is, the CF header is trustworthy; otherwise ignore it.
+    if(softaculous_is_cloudflare_ip($ip_addr)){
+        $cf_ip = sanitize_text_field($_SERVER['HTTP_CF_CONNECTING_IP']);
+        if(filter_var($cf_ip, FILTER_VALIDATE_IP)){
+            return $cf_ip;
+        }
+    }
+    
+	return $ip_addr;
+}
+
+/**
+ * Returns true if $ip falls inside any of the published Cloudflare IP ranges
+ *
+ * @internal  Used only by softaculous_getip().
+ */
+function softaculous_is_cloudflare_ip($ip){
+	
+    $ranges = softaculous_get_cloudflare_cidrs();
+    if(empty($ranges)){
+        return false; // fetch failed — do not trust CF header
+    }
+
+    foreach($ranges as $cidr){
+        if(softaculous_ip_in_cidr($ip, $cidr)){
+            return true;
+        }
+    }
+	
+    return false;
+}
+
+/**
+ * Fetch (and cache) Cloudflare's published IP ranges.
+ * Returns a flat array of CIDR strings, e.g. ['103.21.244.0/22', ...].
+ *
+ * Cache location: options table (24-hour TTL).
+ * Falls back to an empty array on any network or parse error.
+ *
+ * @internal
+ */
+function softaculous_get_cloudflare_cidrs() {
+
+    $cache_ttl = 7 * DAY_IN_SECONDS;
+
+    $cache = get_option('softaculous_cloudflare_ips', array(
+        'updated' => 0,
+        'cidrs'   => array(),
+    ));
+
+    // Return cached data if still fresh.
+    if(!empty($cache['cidrs']) && (time() - (int) $cache['updated']) < $cache_ttl){
+        return $cache['cidrs'];
+    }
+
+    $sources = array(
+        'https://www.cloudflare.com/ips-v4',
+        'https://www.cloudflare.com/ips-v6',
+    );
+
+    $cidrs = array();
+
+    foreach ($sources as $url) {
+
+        $response = wp_remote_get($url, array(
+            'timeout'     => 5,
+            'redirection' => 3,
+            'user-agent'  => 'WordPress/' . get_bloginfo('version') . '; ' . home_url('/'),
+        ));
+
+        if(is_wp_error($response)){
+            continue;
+        }
+
+        if(wp_remote_retrieve_response_code($response) !== 200){
+            continue;
+        }
+
+        $body = wp_remote_retrieve_body($response);
+
+        foreach(explode("\n", trim($body)) as $line){
+            $line = trim($line);
+
+            // Basic sanity check.
+            if($line !== '' && strpos($line, '/') !== false){
+                $cidrs[] = $line;
+            }
+        }
+    }
+
+    // Save only if we successfully fetched data.
+    if(!empty($cidrs)){
+        update_option(
+            'softaculous_cloudflare_ips',
+            array(
+                'updated' => time(),
+                'cidrs'   => array_unique($cidrs),
+            ),
+            false
+        );
+
+        return array_unique($cidrs);
+    }
+
+    // Return stale cache if refresh failed.
+    return !empty($cache['cidrs']) ? $cache['cidrs'] : array();
+}
+
+/**
+ * Check whether a given IP address falls within a CIDR block.
+ * Supports both IPv4 and IPv6.
+ *
+ * @internal
+ */
+function softaculous_ip_in_cidr($ip, $cidr){
+	
+    list($subnet, $bits) = explode('/', $cidr, 2);
+    $bits = (int)$bits;
+
+    // Detect address family by presence of ':'
+    $isIPv6 = strpos($ip, ':') !== false;
+
+    if ($isIPv6) {
+        // IPv6 comparison using inet_pton packed binary
+        $ipPacked     = @inet_pton($ip);
+        $subnetPacked = @inet_pton($subnet);
+        if ($ipPacked === false || $subnetPacked === false) return false;
+        if (strlen($ipPacked) !== 16 || strlen($subnetPacked) !== 16) return false;
+
+        // Build a bitmask of $bits ones followed by zeros, across 128 bits
+        $mask = str_repeat("\xff", (int)($bits / 8));
+        $rem  = $bits % 8;
+        if ($rem) $mask .= chr(0xff & (0xff << (8 - $rem)));
+        $mask = str_pad($mask, 16, "\x00");
+
+        return ($ipPacked & $mask) === ($subnetPacked & $mask);
+    } else {
+        // IPv4 comparison using 32-bit integers
+        $ipLong     = ip2long($ip);
+        $subnetLong = ip2long($subnet);
+        if ($ipLong === false || $subnetLong === false) return false;
+
+        $mask = $bits === 0 ? 0 : (~0 << (32 - $bits));
+        return ($ipLong & $mask) === ($subnetLong & $mask);
+    }
 }
 
 /**

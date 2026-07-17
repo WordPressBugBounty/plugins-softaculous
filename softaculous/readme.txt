@@ -4,7 +4,7 @@ Tags: softaculous, sites, manage sites, backup, plugins, themes, manage wordpres
 Requires at least: 4.4
 Tested up to: 7.0
 Requires PHP: 5.3
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -39,6 +39,11 @@ Should you have any suggestions to improve Softaculous, want to see some related
 6. It's Done! You can now start exploring.
 
 == Changelog ==
+
+= 2.4.1 =
+* [Security Fix] A security issue that caused due to a change in v2.4.0 has been fixed in v2.4.1
+* [Pro] Features like, Task management, Conversation fork, Undo/Redo added.
+* [Pro Task] Added installation option of Sharemypost and Deskuss plugins.
 
 = 2.4.0 =
 * [Task] Changes to take the CF_CONNECTING_IP for sites using Cloudflare Proxy

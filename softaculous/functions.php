@@ -2439,7 +2439,7 @@ function softaculous_authorize(){
 		// their plugin whenever cloud.softaculous.com's IP changes.
 		$panel_host_ips = softaculous_get_panel_host_ips();
 		
-		if(!empty($panel_host_ips) && !in_array($remote_ip, $panel_host_ips)){
+		if(empty($panel_host_ips) || !in_array($remote_ip, $panel_host_ips, true)){
 			$return['error'] = 'Unauthorized Access from an unknown IP '.esc_html($remote_ip).'. Allowed IPs - '.esc_html(implode(',', $allowed_ips)).'!!';
 			echo wp_json_encode($return);
 			die();
